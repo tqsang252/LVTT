@@ -1,0 +1,28 @@
+Tao dữ liệu
+Input đầu vào, quá trình chọn dữ liệu ntn (giải thích chi tiết cách lọc dữ liệu)
+Thực nghiệm.
+Mô tả chi tiết
+
+Hiện thực giải pháp ntn
+Bộ dữ liệu ntn
+Chạy số liệu, traning ntn
+Mô hình có gì
+
+Điều kiện giống nhau trong mọi trường hợp
+
+trình bày kq.
+
+Giải thích kết quả
+Khuyến nghị, kết luận
+
+Lý giải ntn
+
+
+Môi tập dữ liệu vài tháng
+
+Lỗi cao, thấp, trung bình
+
+
+thử nghiệm 1 ntn, 2 ntn
+
+Dánh giá phương pháp
