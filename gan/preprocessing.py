@@ -77,20 +77,38 @@ def new_apply_pipeline(x, freq, window_size):
     
     return x_scaled, t, x_win, t_win
 
-# def inverse_apply_pipeline(x, t, x_win, t_win, window_size):
-#     # Reshape x_win to the original format
-#     x_reconstructed = merge_rolling_windows(x_win)
+def inverse_rolling_windows(x_win, step_size=1):
+    """
+    Merge rolling-window time series data into a single time series by taking
+    the median values per timestamp.
+
+    The rolling window data (x_win) is expected to be an nD array, with n >= 2
+    and of the shape (# windows, window size, ...).
+
+    The output is the combined time series (x) in the form of an (n-1)D array
+    of the shape (# timestamps, ...).
+    """
+    n_windows, window_size = x_win.shape[:2]
+    n = (n_windows - 1) * step_size + window_size
+    x_mult = np.full((n, window_size, *(x_win.shape[2:])), np.nan)
+    for i in range(window_size):
+        x_mult[i::step_size, i][:n_windows] = x_win[:, i]
+    x = np.nanmedian(x_mult, axis=1)
+    return x
+
+def inverse_scale_data(x):
+    """
+    Inverse the scaling process to get the original data.
+
+    x_scaled: Scaled data to be inversed.
+    scaler: The scaler object used to scale the data.
     
-#     # Reshape x to the original format
-#     x = x.reshape(-1, 1)
-#     x = MinMaxScaler(feature_range=(-1, 1)).inverse_transform(x)
-#     x = x.flatten()
-    
-#     # Convert t to the original format
-#     t = pd.to_datetime(t)
-    
-#     # Resample x to the original format
-#     x_series = pd.Series(data=x, index=t)
-#     x_resampled = x_series.resample('1D').sum()  # Use the same frequency used in apply_pipeline
-    
-#     return x_resampled.values, x_reconstructed, t, t_win
+    Returns: Original data before scaling.
+    """
+    x = x.reshape(-1, 1)
+    scaler = MinMaxScaler(feature_range=(-1, 1))
+    x_scaled = scaler.fit_transform(x).reshape(-1)
+    x_scaled = x_scaled.reshape(-1, 1)
+    x_original = scaler.inverse_transform(x_scaled)
+    return x_original.reshape(-1)
+

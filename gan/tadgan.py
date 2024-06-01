@@ -79,6 +79,9 @@ class TadGAN(object):
         self.generator_params = params.get('generator', {})
         self.critic_x_params = params.get('critic_x', {})
         self.critic_z_params = params.get('critic_z', {})
+        self.critic_x_loss_history = []
+        self.critic_z_loss_history = []
+        self.encoder_generator_loss_history = []
 
     def _build(self):
         
@@ -243,11 +246,17 @@ class TadGAN(object):
             encoder_generator_losses = np.mean(np.array(encoder_generator_losses), axis=0)
             
             t1 = time.time()
+
+            # Append the average losses to history
+            self.critic_x_loss_history.append(critic_x_losses)
+            self.critic_z_loss_history.append(critic_z_losses)
+            self.encoder_generator_loss_history.append(encoder_generator_losses)
                     
             print(f'Epoch {epoch+1}/{epochs} ({t1-t0:.1f} secs)')
             print(f'  Critic X Loss: {critic_x_losses[0]:.6f} {critic_x_losses[1:]}')
             print(f'  Critic Z Loss: {critic_z_losses[0]:.6f} {critic_z_losses[1:]}')
             print(f'  Encoder Generator Loss: {encoder_generator_losses[0]:.6f} {encoder_generator_losses[1:]}')
+            # return critic_x_loss_history, critic_z_loss_history, encoder_generator_loss_history
     
     def predict(self, x):
         """Generate reconstruction of a collection of time series (x), via the
@@ -271,6 +280,9 @@ class TadGAN(object):
         tf.keras.models.save_model(self.generator, save_path + '_generator')
         tf.keras.models.save_model(self.critic_x, save_path + '_critic_x')
         tf.keras.models.save_model(self.critic_z, save_path + '_critic_z')
+    
+    def getLoss(self):
+        return self.critic_x_loss_history, self.critic_z_loss_history, self.encoder_generator_loss_history
     
     def get_model(self, save_path):
         self.encoder = tf.keras.models.load_model(save_path + '_encoder')
